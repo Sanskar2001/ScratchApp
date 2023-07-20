@@ -26,17 +26,6 @@
       "image": "./assets/kitty.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "895c84e1-fd97-42d9-aed9-22c8999ca922"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/895c84e1-fd97-42d9-aed9-22c8999ca922"
     }
   }
 }
