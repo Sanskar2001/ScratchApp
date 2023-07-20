@@ -1,15 +1,36 @@
 import { View, StyleSheet } from "react-native";
 import { useRef, useEffect, useState } from "react";
-import AnimatedSprite from "react-native-animated-sprite";
+import AnimatedSprite from "../AnimatedSprite/components/AnimatedSprite";
 import { FAB } from "react-native-elements";
 import InfoCard from "./InfoCard";
 import logo from "../assets/cat.png";
+import catHello from "../assets/catHello.png";
+import ballHello from "../assets/ballHello.png";
+import ball from "../assets/ball.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { resetToOrigin } from "../TweenOptions/CustomTweens";
+import { executeActions } from "../Utility/ExecuteActions";
+import { useStateValue } from "../ContextApi/State";
 export default Canvas = () => {
   const demo = useRef();
+  const sprite2=useRef();
+  const spriteRef = useRef(logo);
 
-  useEffect(() => {
-    console.log(demo.current.getCoordinates());
-  }, [demo]);
+  const[state,dispatch]=useStateValue();
+
+
+
+
+  const[secondSprite,setSecondSprite]=useState(true)
+   useEffect(() => {
+   
+    // console.log("State changed in canvas")
+
+    console.log("SpriteBoard="+state.isSpriteBoardVisible)
+
+  },[state])
+
+  
 
   const [coordinates, setCoordinates] = useState({
     x: 100,
@@ -22,20 +43,19 @@ export default Canvas = () => {
         style={styles.floatingContainer}
         color="green"
         icon={{ name: "redo", color: "white" }}
-
         onPress={() => {
-         console.log("reset pressed")
+          console.log("reset pressed");
 
-      
-         demo.current.mystartTween(tweenOptions);
-        
+          resetToOrigin(demo);
+          resetToOrigin(sprite2);
+
+          setSecondSprite(!secondSprite)
+
           setCoordinates({
             x: 100,
             y: 100,
-          })
-
+          });
         }}
-    
       ></FAB>
       <View style={styles.draggableArea}>
         <AnimatedSprite
@@ -43,13 +63,13 @@ export default Canvas = () => {
             name: "demo",
             size: { width: 10, height: 10 },
             animationTypes: ["demo"],
-            frames: [logo],
+            frames: [logo, catHello],
             animationIndex: () => {
               0;
             },
           }}
-          tweenStart='fromMethod'
-          tweenOptions={tweenOption2}
+          tweenStart="fromMethod"
+          tweenOptions={initialTweenOptions}
           coordinates={{
             top: 100,
             left: 100,
@@ -75,8 +95,112 @@ export default Canvas = () => {
               y: demo.current.getCoordinates().top,
             });
           }}
-      
         />
+    
+       
+         <AnimatedSprite
+         sprite={{
+           name: "ball",
+           size: { width: 10, height: 10 },
+           animationTypes: ["demo"],
+           frames: [ball, ballHello],
+           animationIndex: () => {
+             0;
+           },
+         }}
+         tweenStart="fromMethod"
+         visible={state.isSpriteBoardVisible}
+         tweenOptions={initialTweenOptions}
+         coordinates={{
+           top: 100,
+           left: 100,
+         }}
+         size={{
+           width: 50,
+           height: 50,
+         }}
+         animationFrameIndex={[0]}
+         draggable={true}
+         ref={sprite2}
+         onPress={() => {
+           console.log("press");
+           setCoordinates({
+             x: demo.current.getCoordinates().left,
+             y: demo.current.getCoordinates().top,
+           });
+         }}
+         onPressOut={() => {
+           console.log("press out");
+           setCoordinates({
+             x: demo.current.getCoordinates().left,
+             y: demo.current.getCoordinates().top,
+           });
+         }}
+       />
+       
+        {/* <AnimatedSprite
+          sprite={{
+            name: "ball",
+            size: { width: 10, height: 10 },
+            animationTypes: ["demo"],
+            frames: [ball, catHello],
+            animationIndex: () => {
+              0;
+            },
+          }}
+          tweenStart="fromMethod"
+          visible={state.isSecondSpriteVisible}
+          tweenOptions={initialTweenOptions}
+          coordinates={{
+            top: 100,
+            left: 100,
+          }}
+          size={{
+            width: 50,
+            height: 50,
+          }}
+          animationFrameIndex={[0]}
+          draggable={true}
+          ref={sprite2}
+          onPress={() => {
+            console.log("press");
+            setCoordinates({
+              x: demo.current.getCoordinates().left,
+              y: demo.current.getCoordinates().top,
+            });
+          }}
+          onPressOut={() => {
+            console.log("press out");
+            setCoordinates({
+              x: demo.current.getCoordinates().left,
+              y: demo.current.getCoordinates().top,
+            });
+          }}
+        /> */}
+
+        <FAB
+          style={styles.floatingContainer2}
+          color="#0E86D4"
+          icon={{ name: "play-arrow", color: "white" }}
+          onPress={() => {
+            console.log("play pressed");
+
+            executeActions(demo,"action1").then(() => {
+              AsyncStorage.clear();
+              console.log("done")
+            });
+
+            executeActions(sprite2,"action2").then(() => {
+              AsyncStorage.clear();
+              console.log("done 2 ")
+            })
+
+            setCoordinates({
+              x: demo.current.getCoordinates().left,
+              y: demo.current.getCoordinates().top,
+            });
+          }}
+        ></FAB>
       </View>
       <InfoCard x={coordinates.x} y={coordinates.y}></InfoCard>
     </View>
@@ -85,17 +209,17 @@ export default Canvas = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: "95%",
     height: "70%",
-    backgroundColor: "black",
-    margin: 5,
+ 
+    margin:10,
   },
 
   draggableArea: {
-    width: "100%",
+    width: "98%",
     height: "90%",
     margin: 5,
-    backgroundColor: "blue",
+    backgroundColor: "white",
   },
 
   floatingContainer: {
@@ -104,26 +228,21 @@ const styles = StyleSheet.create({
     marginTop: "5%",
     zIndex: 100,
   },
+
+  floatingContainer2: {
+    position: "absolute",
+    marginLeft: "85%",
+    marginTop: "70%",
+    zIndex: 100,
+  },
 });
 
-const tweenOptions = {
-      
-      tweenType: 'sine-wave',
-      startXY: [100, 100],
-      xTo: [100, 100],
-      yTo: [100,100],
-      duration: 1000,
-      loop: false,
-    }
-    
-
-    const tweenOption2 = {
-      tweenType: 'sine-wave',
-      startXY: [100,100],
-      xTo: [300,300],
-      yTo: [300,300],
-      duration: 1000,
-      loop: false,
-    }
-  
-   
+const initialTweenOptions = {
+  tweenType: "sine-wave",
+  startXY: [0, 0],
+  xTo: [300, 300],
+  yTo: [300, 300],
+  endXY: [0, 0],
+  duration: 1000,
+  loop: false,
+};
