@@ -11,26 +11,28 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { resetToOrigin } from "../TweenOptions/CustomTweens";
 import { executeActions } from "../Utility/ExecuteActions";
 import { useStateValue } from "../ContextApi/State";
+import { createRef } from "react";
 export default Canvas = () => {
   const demo = useRef();
-  const sprite2=useRef();
+  const sprite2 = useRef();
   const spriteRef = useRef(logo);
 
-  const[state,dispatch]=useStateValue();
+  const spriteRefs = useRef([]);
 
+  const [state, dispatch] = useStateValue();
 
-
-
-  const[secondSprite,setSecondSprite]=useState(true)
-   useEffect(() => {
-   
+  const [secondSprite, setSecondSprite] = useState(true);
+  useEffect(() => {
     // console.log("State changed in canvas")
 
-    console.log("SpriteBoard="+state.isSpriteBoardVisible)
+    // console.log("SpriteBoard=" + state.isSpriteBoardVisible);
 
-  },[state])
+    state.animatedSprites.forEach((element) => {
+      spriteRefs.current.push(createRef());
+    });
 
-  
+    console.log(spriteRefs);
+  }, [state.cards.length]);
 
   const [coordinates, setCoordinates] = useState({
     x: 100,
@@ -47,9 +49,14 @@ export default Canvas = () => {
           console.log("reset pressed");
 
           resetToOrigin(demo);
-          resetToOrigin(sprite2);
 
-          setSecondSprite(!secondSprite)
+          spriteRefs.current.forEach((element, index) => {
+            if (element.current !== null) {
+              resetToOrigin(spriteRefs.current[index]);
+            }
+          });
+
+          setSecondSprite(!secondSprite);
 
           setCoordinates({
             x: 100,
@@ -96,87 +103,51 @@ export default Canvas = () => {
             });
           }}
         />
-    
-       
-         <AnimatedSprite
-         sprite={{
-           name: "ball",
-           size: { width: 10, height: 10 },
-           animationTypes: ["demo"],
-           frames: [ball, ballHello],
-           animationIndex: () => {
-             0;
-           },
-         }}
-         tweenStart="fromMethod"
-         visible={state.isSpriteBoardVisible}
-         tweenOptions={initialTweenOptions}
-         coordinates={{
-           top: 100,
-           left: 100,
-         }}
-         size={{
-           width: 50,
-           height: 50,
-         }}
-         animationFrameIndex={[0]}
-         draggable={true}
-         ref={sprite2}
-         onPress={() => {
-           console.log("press");
-           setCoordinates({
-             x: demo.current.getCoordinates().left,
-             y: demo.current.getCoordinates().top,
-           });
-         }}
-         onPressOut={() => {
-           console.log("press out");
-           setCoordinates({
-             x: demo.current.getCoordinates().left,
-             y: demo.current.getCoordinates().top,
-           });
-         }}
-       />
-       
-        {/* <AnimatedSprite
-          sprite={{
-            name: "ball",
-            size: { width: 10, height: 10 },
-            animationTypes: ["demo"],
-            frames: [ball, catHello],
-            animationIndex: () => {
-              0;
-            },
-          }}
-          tweenStart="fromMethod"
-          visible={state.isSecondSpriteVisible}
-          tweenOptions={initialTweenOptions}
-          coordinates={{
-            top: 100,
-            left: 100,
-          }}
-          size={{
-            width: 50,
-            height: 50,
-          }}
-          animationFrameIndex={[0]}
-          draggable={true}
-          ref={sprite2}
-          onPress={() => {
-            console.log("press");
-            setCoordinates({
-              x: demo.current.getCoordinates().left,
-              y: demo.current.getCoordinates().top,
-            });
-          }}
-          onPressOut={() => {
-            console.log("press out");
-            setCoordinates({
-              x: demo.current.getCoordinates().left,
-              y: demo.current.getCoordinates().top,
-            });
-          }}
-        /> */}
+
+        {state.animatedSprites.map(
+          (item, index) =>
+            (item.sprite = (
+              <AnimatedSprite
+                sprite={{
+                  name: "ball",
+                  size: { width: 10, height: 10 },
+                  animationTypes: ["demo"],
+                  frames: [ball, ballHello],
+                  animationIndex: () => {
+                    0;
+                  },
+                }}
+                ref={spriteRefs.current[index]}
+                tweenStart="fromMethod"
+                visible={true}
+                tweenOptions={initialTweenOptions}
+                coordinates={{
+                  top: 100,
+                  left: 100,
+                }}
+                size={{
+                  width: 50,
+                  height: 50,
+                }}
+                animationFrameIndex={[0]}
+                draggable={true}
+                onPress={() => {
+                  console.log("press");
+                  // setCoordinates({
+                  //   x: demo.current.getCoordinates().left,
+                  //   y: demo.current.getCoordinates().top,
+                  // });
+                }}
+                onPressOut={() => {
+                  console.log("press out");
+                  // setCoordinates({
+                  //   x: demo.current.getCoordinates().left,
+                  //   y: demo.current.getCoordinates().top,
+                  // });
+                }}
+              />
+            ))
+        )}
 
         <FAB
           style={styles.floatingContainer2}
@@ -184,16 +155,69 @@ export default Canvas = () => {
           icon={{ name: "play-arrow", color: "white" }}
           onPress={() => {
             console.log("play pressed");
+            const actionArray = state.droppedActions;
 
-            executeActions(demo,"action1").then(() => {
-              AsyncStorage.clear();
-              console.log("done")
+            // console.log(actionArray);
+
+            // state.spriteRefArr.forEach(element => {
+
+            //   element=useRef();
+            // });
+
+            // console.log(state.animatedSprites[0])
+
+            console.log(spriteRefs);
+
+            console.log(state.selectedSprite);
+            executeActions(
+              demo,
+              "action0",
+              state.selectedSprite,
+              state.droppedActions
+            ).then(() => {
+              dispatch({ type: "setDroppedActions", payload: [] });
+              console.log("done");
             });
 
-            executeActions(sprite2,"action2").then(() => {
-              AsyncStorage.clear();
-              console.log("done 2 ")
-            })
+            spriteRefs.current.forEach((element, index) => {
+              var startingId = 0;
+              if (state.animatedSprites[1] !== undefined)
+                startingId = state.animatedSprites[1].id;
+
+              if (element.current !== null) {
+                const currentAction =
+                  "action" + state.animatedSprites[index].id;
+                const actionToBePerformed = state.selectedSprite;
+                // console.log("refs->"+element.current)
+
+                executeActions(
+                  spriteRefs.current[index],
+                  currentAction,
+                  state.selectedSprite,
+                  actionArray
+                ).then(() => {
+                  console.log("done 2 ");
+                });
+              }
+            });
+            // executeActions(
+            //   spriteRefs.current[0],
+            //   "action2",
+            //   state.selectedSprite,
+            //   actionArray
+            // ).then(() => {
+            //   console.log("done 2 ");
+            // });
+
+            // executeActions(
+            //   spriteRefs.current[1],
+            //   "action2",
+            //   state.selectedSprite,
+            //   actionArray
+            // ).then(() => {
+            //   console.log("done 2 ");
+            // }
+            // )
 
             setCoordinates({
               x: demo.current.getCoordinates().left,
@@ -211,8 +235,8 @@ const styles = StyleSheet.create({
   container: {
     width: "95%",
     height: "70%",
- 
-    margin:10,
+
+    margin: 10,
   },
 
   draggableArea: {

@@ -1,93 +1,86 @@
-import React, { Component } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  PanResponder,
-  Animated,
-  Dimensions,
-} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { StyleSheet, View, Text, PanResponder, Animated, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useStateValue } from "../ContextApi/State";
 var selectedActions = [];
-export default class Draggable extends Component {
-  constructor(props) {
-    super();
-    selectedActions = [];
-    this.state = {
-      pan: new Animated.ValueXY(),
-      text: props.text,
-      showDraggable: true,
-    };
-  }
 
-  isDropArea(gesture) {
-    console.log("Called" + gesture.moveX);
-    const windowWidth = Dimensions.get("window").width;
-    return gesture.moveX > windowWidth * 0.6;
-  }
+const Draggable = (props) => {
 
-  componentWillMount() {
-    // Add a listener for the delta value change
-    this._val = { x: 0, y: 0 };
-    this.state.pan.addListener((value) => (this._val = value));
-    // Initialize PanResponder with move handling
-    this.panResponder = PanResponder.create({
+  const [state, dispatch] = useStateValue();
+  const [pan, setPan] = useState(new Animated.ValueXY());
+  const [showDraggable, setShowDraggable] = useState(true);
+
+  const panResponder = useRef(
+    PanResponder.create({
       onStartShouldSetPanResponder: (e, gesture) => true,
       onPanResponderMove: Animated.event([
         null,
-        { dx: this.state.pan.x, dy: this.state.pan.y },
+        { dx: pan.x, dy: pan.y },
       ]),
-      // adjusting delta value
       onPanResponderRelease: (e, gesture) => {
-        if (this.isDropArea(gesture)) {
-          this.setState({ showDraggable: false });
+        if (isDropArea(gesture)) {
+          setShowDraggable(false);
           console.log("Dropped");
 
-          this.state.showDraggable = false;
+          // selectedActions.push(props.text);
+          dispatch({
+            type: "actionDropped",
+            payload: props.text,
+          })
 
-          selectedActions.push(this.props.text);
-          this.props.activeTab === "Action1"
-            ? AsyncStorage.setItem(
-                "action1",
-                JSON.stringify({ selectedActions })
-              )
-            : AsyncStorage.setItem(
-                "action2",
-                JSON.stringify({ selectedActions })
-              );
+          console.log("Draggable "+state)
 
-          console.log(this.state.showDraggable);
+         
+
+          console.log("State of dropped Actions="+state.droppedActions);
 
           console.log(selectedActions);
         } else {
-          Animated.spring(this.state.pan, {
+          Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
             friction: 5,
           }).start();
         }
       },
-    });
-  }
+    })
+  ).current;
 
-  render() {
-    const panStyle = {
-      transform: this.state.pan.getTranslateTransform(),
-    };
+  const isDropArea = (gesture) => {
+    console.log("Called" + gesture.moveX);
+    const windowWidth = Dimensions.get("window").width;
+    return gesture.moveX > windowWidth * 0.6;
+  };
 
-    const { showDraggable } = this.state.showDraggable;
-    console.log(this.state.showDraggable);
-    return (
+  const panStyle = {
+    transform: pan.getTranslateTransform(),
+  };
+
+  return (
+    <View >
       <Animated.View
-        {...this.panResponder.panHandlers}
+        {...panResponder.panHandlers}
         style={
-          this.state.showDraggable ? [panStyle, styles.box] : styles.invisible
+          showDraggable ? [panStyle, styles.draggableBox] : styles.invisible
         }
       >
-        <Text style={styles.codeItem}>{this.state.text}</Text>
+        <View style={styles.box}>
+        <Text style={styles.codeItem}>{props.text}</Text>
+
+        </View>
+      
       </Animated.View>
-    );
-  }
-}
+
+        <View style={styles.box2}>
+        <Text style={styles.codeItem2}>{props.text}</Text>
+       
+        </View>
+
+      
+    </View>
+  );
+};
+
+export default Draggable;
 
 let styles = StyleSheet.create({
   box: {
@@ -95,15 +88,48 @@ let styles = StyleSheet.create({
     width: "100%",
     height: 60,
     marginTop: 10,
+    
     zIndex: 100,
+    
+  },
+  draggableBox: {
+    backgroundColor: "white",
+    width: "100%",
+    height: 60,
+    marginTop: 10,
+    
+    zIndex: 100,
+    
+  },
+  box2: {
+    backgroundColor: "grey",
+    width: "100%",
+    height: 60,
+    marginTop: 10,
+    position:'absolute',
+
+    
+
   },
   invisible: {
     transform: [{ translateX: 2000 }],
+    // display:"none"
+    // opacity:0.5
+   
+
   },
   codeItem: {
     textAlign: "center",
     fontWeight: "bold",
     color: "white",
     padding: 10,
+  
+  },
+  codeItem2: {
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "white",
+    padding: 10
+  
   },
 });

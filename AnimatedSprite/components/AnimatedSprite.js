@@ -48,6 +48,11 @@ class AnimatedSprite extends React.Component {
     this.state.frameIndex=value
   }
 
+  func()
+  {
+    console.log("Hello world")
+  }
+
 
   componentWillMount () {
     if (this.props.draggable) {

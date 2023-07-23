@@ -9,17 +9,35 @@ import {
 } from "../TweenOptions/CustomTweens";
 import { sayHelloOneSecond, updateSayHelloSprite } from "../Actions/SayHello";
 
-export const executeActions = async (demo, actionName) => {
-  const data = await AsyncStorage.getItem(actionName);
+export const executeActions = async (
+  demo,
+  actionName,
+  actionToBePerformed,
+  droppedActions
+) => {
+  // if(actionName!==actionToBePerformed)
+  // return
+  console.log("Actions Checking"+actionName + " " + actionToBePerformed);
+  // console.log((actionName!==actionToBePerformed))
+  if (actionName !== actionToBePerformed) return;
 
-  if (data == null || data.length == 0) return;
+  console.log("Actions Checking"+actionName + " " + actionToBePerformed);
 
-  const actionArray = JSON.parse(data).selectedActions;
-  console.log(actionArray.length);
+  console.log("Execute Actions" + droppedActions);
+  // const data = await AsyncStorage.getItem(actionName);
+  // console.log("data="+data);
+
+  // if (data == null || data.length == 0) return;
+
+  console.log("Here");
+
+  const actionArray = droppedActions;
+  console.log(actionArray + " " + actionArray.length);
 
   if (actionArray.length == 0) return;
 
   for (let i = 0; i < actionArray.length; i++) {
+    console.log("Here");
     await performAction(actionArray[i], demo);
 
     console.log("next");

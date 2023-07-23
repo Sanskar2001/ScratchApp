@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     width: "99%",
     height: "10%",
-    margin:5
+    margin: 5,
   },
 
   infoBox: {

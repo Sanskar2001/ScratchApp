@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, YellowBox } from "react-native";
 import Header from "./Components/Header";
 import Home from "./Components/Home";
 import AddAction from "./Components/AddAction";
@@ -10,6 +10,7 @@ import { useEffect, useState,useCallback } from 'react';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  
   const [appIsReady,setAppIsReady] = useState(false);
   const [resetPressed,setResetPressed]=useState();
   const onLayoutRootView = useCallback(async () => {
@@ -31,11 +32,14 @@ export default function App() {
       }
       }
     show_splash_screen()
+
+    YellowBox.ignoreWarnings(['Animated: `useNativeDriver`'])
+  
   })
   
 
   return (
-    <StateProvider initialState={initialState} reducer={reducer}>
+    <StateProvider value={initialState} initialState={initialState} reducer={reducer}>
     <NavigationContainer>
       <View  onLayout={onLayoutRootView}></View>
       <Header />
