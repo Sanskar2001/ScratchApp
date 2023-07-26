@@ -157,14 +157,7 @@ export default Canvas = () => {
             console.log("play pressed");
             const actionArray = state.droppedActions;
 
-            // console.log(actionArray);
-
-            // state.spriteRefArr.forEach(element => {
-
-            //   element=useRef();
-            // });
-
-            // console.log(state.animatedSprites[0])
+       
 
             console.log(spriteRefs);
 
@@ -175,7 +168,7 @@ export default Canvas = () => {
               state.selectedSprite,
               state.droppedActions
             ).then(() => {
-              dispatch({ type: "setDroppedActions", payload: [] });
+              // dispatch({ type: "setDroppedActions", payload: [] });
               console.log("done");
             });
 
@@ -200,24 +193,7 @@ export default Canvas = () => {
                 });
               }
             });
-            // executeActions(
-            //   spriteRefs.current[0],
-            //   "action2",
-            //   state.selectedSprite,
-            //   actionArray
-            // ).then(() => {
-            //   console.log("done 2 ");
-            // });
-
-            // executeActions(
-            //   spriteRefs.current[1],
-            //   "action2",
-            //   state.selectedSprite,
-            //   actionArray
-            // ).then(() => {
-            //   console.log("done 2 ");
-            // }
-            // )
+            
 
             setCoordinates({
               x: demo.current.getCoordinates().left,

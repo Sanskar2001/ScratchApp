@@ -7,6 +7,7 @@ import { useStateValue } from "../ContextApi/State";
 import { FAB } from "react-native-elements";
 import { SelectList } from "react-native-dropdown-select-list";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import 'react-native-get-random-values';
 import {
   ListItem,
   ThemeProvider,
@@ -70,8 +71,15 @@ export default AddAction = () => {
   const handleDelete = (listItem) => {
     // console.log("handle delete "+listItem.title)
     // console.log(state.droppedActions[0])
+    console.log("Deleted------>"+listItem.key)
+
+    // console.log(state.droppedActions)
+    
+    for(let i=0;i<state.droppedActions.length;i++){
+      console.log(state.droppedActions[i])
+    }
     const newData = state.droppedActions.filter(
-      (item) => item !== listItem.title
+      (item) => item.key !== listItem.key
     );
     console.log(newData);
 
@@ -115,7 +123,6 @@ export default AddAction = () => {
   useEffect(() => {
     console.log("Action Added AddAction.js");
     console.log(state.droppedActions);
-    
 
     const arr = [];
     state.animatedSprites.forEach((element) => {
@@ -131,18 +138,11 @@ export default AddAction = () => {
           <View style={styles.codeContainer}>
             <Text style={styles.codeText}>Code</Text>
 
-         
-
             <View style={styles.box}>
-              <Draggable text="Move X by 50"  />
-              <Draggable text="Move Y by 50" activeTab={activeTab} />
-              <Draggable text="go to (0,0)" activeTab={activeTab} />
-              <Draggable text="Move X=50,Y=50" activeTab={activeTab} />
-              <Draggable text="Move X by 50 & Y by 50" activeTab={activeTab} />
-              <Draggable text="go to random position" activeTab={activeTab} />
-              <Draggable text="Say Hello" activeTab={activeTab} />
+              {actionsArray.map((item) => (
+                <Draggable text={item.title} />
+              ))}
             </View>
-   
           </View>
 
           <View style={styles.actionContainer}>
@@ -163,94 +163,41 @@ export default AddAction = () => {
                   });
                 }}
               />
-              {/* <Text
-            style={
-              activeTab === "Action1"
-                ? styles.activeActionTab
-                : styles.inactiveActionTab
-            }
-            onPress={() => {
-              dispatch({ type: "setSpriteAction", payload: "action1" });
-              console.log(state.selectedSprite);
-              setActiveTab("Action1");
-            }}
-          >
-            Action1
-          </Text>
-          <Text
-            style={
-              activeTab === "Action2"
-                ? styles.activeActionTab
-                : styles.inactiveActionTab
-            }
-            onPress={() => {
-              dispatch({ type: "setSpriteAction", payload: "action2" });
-              console.log(state.selectedSprite);
-              // setSpriteAction
-              setActiveTab("Action2");
-            }}
-          >
-            Action2
-          </Text> */}
             </View>
 
             <View style={{ width: "100%", height: "100%" }}>
-
-
               <Text
-                style={{ fontSize: 50, color: "black", textAlign: "center",position:'absolute' }}
+                style={{
+                  fontSize: 50,
+                  color: "black",
+                  textAlign: "center",
+                  position: "absolute",
+                }}
               >
                 Drop Actions here!!
               </Text>
               {console.log("inside Add action screen " + state.droppedActions)}
 
-              {/* {state.droppedActions.length != 0
-            ? state.droppedActions.map((item) => {
-                console.log("inside Add action screen " + item);
-                return (
-                  <View style={styles.listItem}>
-                    <FAB
-                      style={styles.floatingContainer2}
-                      color="red"
-                      size="small"
-                      icon={{ name: "delete", color: "white" }}
-                      onPress={() => {
-                        const arr = state.droppedActions.filter(
-                          (i) => i !== item
-                        );
-                        dispatch({ type: "setDroppedActions", payload: arr });
-
-                        console.log(state.droppedActions);
-
-                        // dispatch({"type":"deleteAction",payload:item})
-
-                        console.log(item + " clicked");
-                      }}
-                    ></FAB>
-                    <Text style={styles.codeItem}>{item}</Text>
-                  </View>
-                );
-              })
-            : null} */}
-
               <DraggableFlatList
                 containerStyle={{ width: "80%", height: "100%" }}
+              
                 data={state.droppedActions.map((item) => {
+            
                   return {
-                    key: hashMap[item],
-                    title: item,
+                    key: item.key,
+                    title: item.title,
                   };
                 })}
                 keyExtractor={(item) => item.key}
                 renderItem={renderItem}
-                onDragBegin={()=>{
-                  console.log("Drag Begin")
+                onDragBegin={() => {
+                  console.log("Drag Begin");
                 }}
                 onDragEnd={({ data }) => {
-                  console.log("Selected Action=" + state.selectedSprite)
+                  console.log("Selected Action=" + state.selectedSprite);
                   dispatch({
                     type: "setDroppedActions",
-                    payload: data.map((item) => item.title),
+                    payload: data,
                   });
                 }}
               ></DraggableFlatList>

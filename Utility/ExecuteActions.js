@@ -38,7 +38,7 @@ export const executeActions = async (
 
   for (let i = 0; i < actionArray.length; i++) {
     console.log("Here");
-    await performAction(actionArray[i], demo);
+    await performAction(actionArray[i].title, demo);
 
     console.log("next");
   }

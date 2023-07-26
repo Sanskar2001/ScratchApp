@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Text, PanResponder, Animated, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useStateValue } from "../ContextApi/State";
+import 'react-native-get-random-values';
+import { v4 as uuidv4, v4 } from 'uuid';
 var selectedActions = [];
 
 const Draggable = (props) => {
@@ -25,7 +27,7 @@ const Draggable = (props) => {
           // selectedActions.push(props.text);
           dispatch({
             type: "actionDropped",
-            payload: props.text,
+            payload: {key: v4(),title:props.text},
           })
 
           console.log("Draggable "+state)
@@ -35,12 +37,25 @@ const Draggable = (props) => {
           console.log("State of dropped Actions="+state.droppedActions);
 
           console.log(selectedActions);
-        } else {
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            friction: 5,
+
+          Animated.timing(pan, {
+            toValue: { x: 0, y: 0 }, 
+            duration: 10, 
+          
           }).start();
         }
+        else
+        {   Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            friction: 5,
+           }).start();
+
+        }
+
+         
+          
+          {console.log("ok")}
+       
       },
     })
   ).current;
@@ -59,8 +74,12 @@ const Draggable = (props) => {
     <View >
       <Animated.View
         {...panResponder.panHandlers}
+      
+        // style={
+        //   showDraggable ? [panStyle, styles.draggableBox] : styles.invisible
+        // }
         style={
-          showDraggable ? [panStyle, styles.draggableBox] : styles.invisible
+          [panStyle, styles.draggableBox]
         }
       >
         <View style={styles.box}>
@@ -72,7 +91,7 @@ const Draggable = (props) => {
 
         <View style={styles.box2}>
         <Text style={styles.codeItem2}>{props.text}</Text>
-       
+        
         </View>
 
       

@@ -9,6 +9,11 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "updates":{
+
+      "useClassicUpdates": true
+
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -26,6 +31,11 @@
       "image": "./assets/kitty.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "895c84e1-fd97-42d9-aed9-22c8999ca922"
+      }
     }
   }
 }
